@@ -106,6 +106,121 @@
     }
   }
 
+  /* ---------------- Brand orb: welcome section -> nav docking ----------------
+     Desktop only, home page only (needs #hero-orb, which only index.html has).
+     On mobile, and on every inner page, #brand-orb is simply always visible
+     via CSS (no JS needed) — this block only handles the flight on the
+     desktop home page. */
+  (function () {
+    var heroOrb = document.getElementById("hero-orb");
+    var brandOrb = document.getElementById("brand-orb");
+    if (!heroOrb || !brandOrb) return;
+
+    if (reduceMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+      heroOrb.style.display = "none";
+      brandOrb.style.opacity = 1;
+      return;
+    }
+
+    var mq = window.matchMedia("(min-width: 980px)");
+    var st = null;
+    var startRect, endRect;
+    var inFlow = true; // whether the orb is currently tracking normal document flow
+
+    function clearInline() {
+      heroOrb.style.position = "";
+      heroOrb.style.top = "";
+      heroOrb.style.left = "";
+      heroOrb.style.width = "";
+      heroOrb.style.height = "";
+    }
+
+    function toFlow() {
+      inFlow = true;
+      clearInline();
+      heroOrb.classList.remove("is-flying");
+      brandOrb.style.opacity = 0;
+    }
+
+    function toFixed(p) {
+      heroOrb.style.position = "fixed";
+      heroOrb.style.top = (startRect.top + (endRect.top - startRect.top) * p) + "px";
+      heroOrb.style.left = (startRect.left + (endRect.left - startRect.left) * p) + "px";
+      heroOrb.style.width = (startRect.width + (endRect.width - startRect.width) * p) + "px";
+      heroOrb.style.height = (startRect.height + (endRect.height - startRect.height) * p) + "px";
+      heroOrb.classList.add("is-flying");
+      brandOrb.style.opacity = 0;
+    }
+
+    function toDocked() {
+      heroOrb.style.position = "fixed";
+      heroOrb.style.top = endRect.top + "px";
+      heroOrb.style.left = endRect.left + "px";
+      heroOrb.style.width = endRect.width + "px";
+      heroOrb.style.height = endRect.height + "px";
+      heroOrb.classList.add("is-flying");
+      brandOrb.style.opacity = 0;
+    }
+
+    // Capture the orb's live on-screen rect (its natural, still-in-flow
+    // position at the *current* scroll point) the instant the flight begins,
+    // so the fixed-position interpolation starts exactly where the eye last
+    // saw it — not wherever it happened to be sitting at page load.
+    function captureStart() {
+      var wasFixed = heroOrb.style.position === "fixed";
+      if (wasFixed) clearInline();
+      startRect = heroOrb.getBoundingClientRect();
+      endRect = brandOrb.getBoundingClientRect();
+    }
+
+    function applyForProgress(progress, isActive) {
+      if (!isActive && progress <= 0) { toFlow(); return; }
+      if (inFlow) { captureStart(); inFlow = false; }
+      if (!isActive && progress >= 1) { toDocked(); return; }
+      toFixed(progress);
+    }
+
+    function build() {
+      heroOrb.style.display = "";
+      inFlow = true;
+      clearInline();
+      st = ScrollTrigger.create({
+        trigger: heroOrb,
+        start: "top 45%",
+        end: "top 110",
+        scrub: true,
+        onUpdate: function (self) { applyForProgress(self.progress, self.isActive); }
+      });
+      applyForProgress(st.progress, st.isActive);
+    }
+
+    function destroy() {
+      if (st) { st.kill(); st = null; }
+      clearInline();
+      heroOrb.classList.remove("is-flying");
+      heroOrb.style.display = "none";
+      brandOrb.style.opacity = "";
+      inFlow = true;
+    }
+
+    function evaluate() {
+      if (mq.matches) build(); else destroy();
+    }
+
+    evaluate();
+    mq.addEventListener("change", evaluate);
+
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      if (!mq.matches) return;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (!inFlow && st) { captureStart(); applyForProgress(st.progress, st.isActive); }
+        ScrollTrigger.refresh();
+      }, 200);
+    });
+  })();
+
   /* ---------------- Contact form (static placeholder submit) ---------------- */
   var form = document.getElementById("contact-form");
   if (form) {
