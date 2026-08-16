@@ -125,7 +125,16 @@
     var mq = window.matchMedia("(min-width: 980px)");
     var st = null;
     var startRect, endRect;
-    var inFlow = true; // whether the orb is currently tracking normal document flow
+    // The orb's document-relative top while it's sitting in normal flow.
+    // Because it's absolutely positioned (not scroll-fixed) until we dock it,
+    // this value is constant regardless of scroll position — flowDocTop minus
+    // the current scrollY always gives its true on-screen top at that scroll
+    // point. That lets us compute "where it is at progress 0" exactly, by
+    // math, instead of trying to sample it live at the instant the trigger
+    // fires (which is what caused the jump/teleport: a scroll tick can land
+    // a little past progress 0 before we ever get to look, so the sampled
+    // position was already slightly wrong).
+    var flowDocTop = 0;
 
     function clearInline() {
       heroOrb.style.position = "";
@@ -136,7 +145,6 @@
     }
 
     function toFlow() {
-      inFlow = true;
       clearInline();
       heroOrb.classList.remove("is-flying");
       brandOrb.style.opacity = 0;
@@ -162,27 +170,29 @@
       brandOrb.style.opacity = 0;
     }
 
-    // Capture the orb's live on-screen rect (its natural, still-in-flow
-    // position at the *current* scroll point) the instant the flight begins,
-    // so the fixed-position interpolation starts exactly where the eye last
-    // saw it — not wherever it happened to be sitting at page load.
-    function captureStart() {
+    // Re-measure the fixed reference points: the orb's natural flow position
+    // (as a scroll-invariant document coordinate) and the nav badge slot it's
+    // flying to. Safe to call any time — always un-fixes first so the flow
+    // measurement is genuine.
+    function refreshMetrics() {
       var wasFixed = heroOrb.style.position === "fixed";
       if (wasFixed) clearInline();
-      startRect = heroOrb.getBoundingClientRect();
+      var r = heroOrb.getBoundingClientRect();
+      flowDocTop = r.top + window.scrollY;
+      startRect = { top: 0, left: r.left, width: r.width, height: r.height };
       endRect = brandOrb.getBoundingClientRect();
+      if (wasFixed) applyForProgress(st.progress, st.isActive);
     }
 
     function applyForProgress(progress, isActive) {
       if (!isActive && progress <= 0) { toFlow(); return; }
-      if (inFlow) { captureStart(); inFlow = false; }
+      startRect.top = flowDocTop - st.start;
       if (!isActive && progress >= 1) { toDocked(); return; }
       toFixed(progress);
     }
 
     function build() {
       heroOrb.style.display = "";
-      inFlow = true;
       clearInline();
       st = ScrollTrigger.create({
         trigger: heroOrb,
@@ -191,6 +201,7 @@
         scrub: true,
         onUpdate: function (self) { applyForProgress(self.progress, self.isActive); }
       });
+      refreshMetrics();
       applyForProgress(st.progress, st.isActive);
     }
 
@@ -200,7 +211,6 @@
       heroOrb.classList.remove("is-flying");
       heroOrb.style.display = "none";
       brandOrb.style.opacity = "";
-      inFlow = true;
     }
 
     function evaluate() {
@@ -215,8 +225,7 @@
       if (!mq.matches) return;
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        if (!inFlow && st) { captureStart(); applyForProgress(st.progress, st.isActive); }
-        ScrollTrigger.refresh();
+        if (st) { refreshMetrics(); ScrollTrigger.refresh(); }
       }, 200);
     });
   })();
