@@ -242,6 +242,32 @@
     });
   }
 
+  /* ---------------- FAQ accordion ---------------- */
+  document.querySelectorAll(".faq-item").forEach(function (item) {
+    var btn = item.querySelector(".faq-question");
+    var panel = item.querySelector(".faq-answer");
+    if (!btn || !panel) return;
+    btn.addEventListener("click", function () {
+      var open = item.classList.contains("is-open");
+      document.querySelectorAll(".faq-item.is-open").forEach(function (other) {
+        if (other === item) return;
+        other.classList.remove("is-open");
+        other.querySelector(".faq-answer").style.maxHeight = "";
+        other.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+      });
+      item.classList.toggle("is-open", !open);
+      btn.setAttribute("aria-expanded", String(!open));
+      panel.style.maxHeight = !open ? panel.scrollHeight + "px" : "";
+    });
+  });
+
+  /* ---------------- Sticky mobile availability bar ---------------- */
+  var stickyBar = document.querySelector(".sticky-bar");
+  if (stickyBar) {
+    stickyBar.classList.add("is-enabled");
+    document.body.classList.add("has-sticky-bar");
+  }
+
   /* ---------------- Gallery filter (optional, only on gallery.html) ---------------- */
   var chipRow = document.querySelector(".chip-row[data-filter]");
   if (chipRow) {
