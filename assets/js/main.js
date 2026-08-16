@@ -4,6 +4,31 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---------------- Populate prices & reviews from config.js ----------------
+     Reads window.SITE_CONFIG (assets/js/config.js) and fills in every
+     [data-price] / [data-review-score] / [data-review-count] element on the
+     page. If a config value is null/missing, the element's existing HTML
+     text (the placeholder authored in the page) is left untouched. */
+  if (typeof SITE_CONFIG !== "undefined") {
+    document.querySelectorAll("[data-price]").forEach(function (el) {
+      var key = el.getAttribute("data-price");
+      var val = key === "from" ? SITE_CONFIG.fromPrice : (SITE_CONFIG.roomPrices || {})[key];
+      if (val === null || val === undefined) return;
+      el.textContent = "$" + val;
+    });
+
+    Object.keys(SITE_CONFIG.reviews || {}).forEach(function (platform) {
+      var data = SITE_CONFIG.reviews[platform];
+      if (!data) return;
+      document.querySelectorAll('[data-review-score="' + platform + '"]').forEach(function (el) {
+        if (data.score !== null && data.score !== undefined) el.textContent = data.score;
+      });
+      document.querySelectorAll('[data-review-count="' + platform + '"]').forEach(function (el) {
+        if (data.count !== null && data.count !== undefined) el.textContent = "(" + data.count + ")";
+      });
+    });
+  }
+
   /* ---------------- Mobile nav ---------------- */
   var toggle = document.querySelector(".nav-toggle");
   var menu = document.querySelector(".mobile-menu");

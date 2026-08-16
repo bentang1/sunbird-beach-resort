@@ -23,8 +23,10 @@ sunbird-beach-resort/
 ├── assets/
 │   ├── css/style.css   All design tokens (colors, type, spacing) + every
 │   │                    component on the site
+│   ├── js/config.js    Prices & review numbers — the ONE file to edit
+│   │                    when those change (see section 5)
 │   └── js/main.js      Mobile nav, scroll fade in/out, the nav logo badge,
-│                        contact form, gallery filter
+│                        contact form, gallery filter, reads config.js
 └── README_SBR.md       This file
 ```
 
@@ -68,7 +70,52 @@ Phone number and street address are already filled in with the resort's real cur
 
 ---
 
-## 4. Versions — how this project is tracked
+## 4. Updating prices and review numbers
+
+Nightly rates and review scores aren't the kind of thing you set once and forget — so instead of being buried in HTML across eight pages, every one of them lives in a single file:
+
+**`assets/js/config.js`**
+
+Open it in any text editor. You'll see three groups of plain numbers:
+
+```js
+fromPrice: 250,
+
+roomPrices: {
+  studio:    null,
+  oneBed:    250,
+  twoBed:    280,
+  penthouse: null
+},
+
+reviews: {
+  google:      { score: 4.4, count: 246 },
+  tripadvisor: { score: 4.6, count: 265 },
+  booking:     { score: 8.7, count: 776 }
+}
+```
+
+**To change a price:** edit the number after the colon — e.g. change `oneBed: 250,` to `oneBed: 265,` — save the file, and refresh the page. That new number appears everywhere it's shown (the hero banner, the sticky mobile bar, the room cards, the Rooms & Suites page) automatically, all at once. No need to search through every page by hand.
+
+**To leave a rate unconfirmed:** set it to `null` (no quotes, exactly as shown for `studio` and `penthouse` above). The page keeps showing "Insert Rate" until you replace `null` with a real number.
+
+**To update a review score:** change that platform's `score` and `count` numbers the same way.
+
+A couple of formatting rules to keep the file working: numbers only (write `265`, not `"265"` or `$265`), and don't remove any commas or curly braces `{ }` — only change the numbers themselves.
+
+### Why review counts can't update themselves automatically
+
+It would be nice if these refreshed on their own, but that's genuinely not achievable the way this site is built (or realistically, for most sites this size):
+
+- **Google** does have an API for this, but it's a paid service, and using it safely requires a small backend server to hide the access key — this site is deliberately a simple, free-to-host static site with no server behind it. Adding one is a real infrastructure change, not a quick tweak.
+- **TripAdvisor**'s equivalent API is only available to approved partners; it's not something a small independent property can typically get access to.
+- **Booking.com** has no public way at all to pull your own score into a third-party website.
+
+The practical answer — and what most hotel and resort websites of this size actually do — is to check each platform yourself every month or two and update the three numbers in `config.js`. Takes under a minute once you're in the file.
+
+---
+
+## 5. Versions — how this project is tracked
 
 This project uses **Git**, a tool that saves a snapshot of the whole site every time meaningful changes are made, without ever needing duplicate folders like `sunbird-v1`, `sunbird-v2`, etc. Every snapshot is kept forever, and you can jump back to any of them at any time.
 
@@ -79,6 +126,7 @@ This project uses **Git**, a tool that saves a snapshot of the whole site every 
 | **v1** | Initial build — all 8 pages, tropical design system, GSAP fade in/out |
 | **v2** | Added the scroll-docking "3D Rotating Item" badge that flies from the welcome section into the nav bar |
 | **v2.5** | Fixed a positioning bug in that flight animation, made the docked badge bigger, and added this README |
+| **v3** | Added pricing, a 3-platform review trust badge, a sticky mobile availability bar, and a home page FAQ — plus `config.js`, so prices and review numbers only need editing in one place |
 
 ### See what versions exist
 ```bash

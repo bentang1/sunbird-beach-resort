@@ -56,7 +56,7 @@
   <div class="container hero-content">
     <div class="hero-meta">
       <span class="eyebrow">Main Beach · Gold Coast</span>
-      <span class="price-pill">From $250/night</span>
+      <span class="price-pill">From <span data-price="from">$250</span>/night</span>
     </div>
     <h1>Step Into Paradise at Sunbird Beach Resort</h1>
     <p class="lead">Ocean views, minutes from the sand, with Tedder Avenue's best dining and boutiques on your doorstep.</p>
@@ -65,9 +65,9 @@
       <a href="#welcome" class="btn btn-white">Explore the Resort</a>
     </div>
     <div class="trust-row">
-      <span class="trust-item"><span class="trust-dot" style="background:#4285F4"></span><strong>4.4</strong> Google <span class="trust-count">(246)</span></span>
-      <span class="trust-item"><span class="trust-dot" style="background:#34E0A1"></span><strong>4.6</strong> TripAdvisor <span class="trust-count">(265)</span></span>
-      <span class="trust-item"><span class="trust-dot" style="background:#003580"></span><strong>8.7</strong> Booking.com <span class="trust-count">(776)</span></span>
+      <span class="trust-item"><span class="trust-dot" style="background:#4285F4"></span><strong data-review-score="google">4.4</strong> Google <span class="trust-count" data-review-count="google">(246)</span></span>
+      <span class="trust-item"><span class="trust-dot" style="background:#34E0A1"></span><strong data-review-score="tripadvisor">4.6</strong> TripAdvisor <span class="trust-count" data-review-count="tripadvisor">(265)</span></span>
+      <span class="trust-item"><span class="trust-dot" style="background:#003580"></span><strong data-review-score="booking">8.7</strong> Booking.com <span class="trust-count" data-review-count="booking">(776)</span></span>
     </div>
   </div>
   <div class="hero-scroll-cue"><span>Scroll</span><span class="line"></span></div>
@@ -162,7 +162,7 @@
         </div>
         <div class="card-body">
           <h3>Ocean View Studio</h3>
-          <div class="card-price"><span class="amount">$250</span><span class="unit">/ night</span></div>
+          <div class="card-price"><span class="amount"><span data-price="studio">[Insert Rate]</span></span><span class="unit">/ night</span></div>
           <p>Sleeps 2 · Private balcony · Kitchenette</p>
           <a href="rooms.html" class="btn btn-outline btn-block">View Details</a>
         </div>
@@ -177,7 +177,7 @@
         </div>
         <div class="card-body">
           <h3>Beachfront Apartment</h3>
-          <div class="card-price"><span class="amount">$250</span><span class="unit">/ night</span></div>
+          <div class="card-price"><span class="amount"><span data-price="oneBed">$250</span></span><span class="unit">/ night</span></div>
           <p>Sleeps 3 · Full kitchen · Ocean views</p>
           <a href="rooms.html" class="btn btn-outline btn-block">View Details</a>
         </div>
@@ -192,7 +192,7 @@
         </div>
         <div class="card-body">
           <h3>Family Apartment</h3>
-          <div class="card-price"><span class="amount">$280</span><span class="unit">/ night</span></div>
+          <div class="card-price"><span class="amount"><span data-price="twoBed">$280</span></span><span class="unit">/ night</span></div>
           <p>Sleeps 5 · Two bedrooms · Two balconies</p>
           <a href="rooms.html" class="btn btn-outline btn-block">View Details</a>
         </div>
@@ -393,12 +393,13 @@
 </footer>
 
 <div class="sticky-bar" role="complementary" aria-label="Booking shortcut">
-  <div class="sb-price"><span class="amount">From $250</span><span class="unit">per night</span></div>
+  <div class="sb-price"><span class="amount">From <span data-price="from">$250</span></span><span class="unit">per night</span></div>
   <a href="book-online.html" class="btn btn-primary">Check Availability</a>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="assets/js/config.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>
